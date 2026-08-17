@@ -4,8 +4,10 @@ import sys
 from rich.console import Console
 from argparse import ArgumentParser
 
+from git_loco.errors import LocationUnavailableError
 from git_loco.platforms import windows
 from git_loco.platforms.windows import LocationStatus
+from git_loco.types import Coordinates
 from git_loco.utils import is_windows, is_wsl, get_hooks_dir, is_in_repo
 
 console = Console()
@@ -20,20 +22,23 @@ HOOK_SCRIPT = f"""#!/bin/sh
 {CAPTURE_CMD}
 """
 
-def get_location() -> None:
+def get_location() -> Coordinates:
     console.print(r"[dim]\[git-loco][/dim]")
 
     if not (is_windows() or is_wsl()):
-        console.print("[yellow]Location capture only supported on Windows/WSL.[/yellow]")
-        return
+        raise LocationUnavailableError("Location capture only supported on Windows/WSL.")
 
-    result = windows.get_location()
+    return windows.get_location()
 
 
 
 def cmd_enable():
     if not is_in_repo():
         console.print("[red]Not inside a git repository.[/red]")
+        sys.exit(1)
+
+    if not (is_windows() or is_wsl()):
+        console.print("[red]Platform not supported.[/red]")
         sys.exit(1)
 
     hooks_dir = get_hooks_dir()
@@ -94,7 +99,17 @@ def install_hooks():
 
 
 def cmd_capture():
-    console.print("CAPTURING...")
+    if not (is_windows() or is_wsl()):
+        console.print("[red]Platform not supported.[/red]")
+        sys.exit(1)
+    
+    try:
+        loc = get_location()
+        console.print(f"[green]coords: {loc}[/green]")
+    except LocationUnavailableError as e:
+        console.print(f"[yellow]{e}[/yellow]")
+        console.print("post-commit: done (no location)")
+        return
 
 
 

@@ -7,7 +7,8 @@ from subprocess import SubprocessError
 
 from rich.console import Console
 
-from git_loco.utils import is_windows, is_wsl
+from git_loco.errors import LocationUnavailableError
+from git_loco.types import Coordinates
 
 console = Console()
 
@@ -50,12 +51,6 @@ def _get_warning_text(status: LocationStatus) -> str:
     return LOCATION_WARNING_MESSAGES.get(status, DEFAULT_LOCATION_WARNING)
 
 
-# def show_location_warning(status: LocationStatus) -> None:
-#     """Prints the formatted location warning message to the console."""
-#     msg = get_location_warning_text(status)
-#     console.print(f"[red]{msg}[/red]")
-
-
 def _get_location_status() -> LocationStatus:
     script_path = SCRIPTS_DIR / "location-enabled.ps1"
     try:
@@ -72,10 +67,12 @@ def _get_location_status() -> LocationStatus:
             text=True,
             check=False,
         )
+
         try:
             return LocationStatus(ps.stdout.strip())
         except ValueError:
             return LocationStatus.UNKNOWN
+
     except (SubprocessError, OSError):
         return LocationStatus.UNKNOWN
 
@@ -96,44 +93,31 @@ def _get_coordinates() -> dict | None:
             text=True,
             check=False,
         )
+
         output = ps.stdout.strip()
         if output:
             return json.loads(output)
+
     except (SubprocessError, OSError, JSONDecodeError) as e:
         return {"error": str(e)}
+
     return None
 
 
-def get_location() -> dict:
-    if not (is_windows() or is_wsl()):
-        return {
-            "ok": False,
-            "message": "Location capture only supported on Windows/WSL.",
-        }
-
+def get_location() -> Coordinates:
     status = _get_location_status()
     if status is not LocationStatus.ENABLED:
-        return {
-            "ok": False,
-            "message": _get_warning_text(status),
-        }
+        raise LocationUnavailableError(_get_warning_text(status))
 
     coords = _get_coordinates()
-    if not coords or "error" in coords:
-        return {
-            "ok": False,
-            "message": (
-                coords.get("error", "Failed to retrieve coordinates.") if coords else "No location data returned."
-            ),
-        }
+    if not coords:
+        raise LocationUnavailableError("Failed to fetch location data.")
+
+    if "error" in coords:
+        raise LocationUnavailableError(coords.get("error"))
 
     lat = coords.get("Latitude")
     long = coords.get("Longitude")
-    accuracy = coords.get("Accuracy")
+    acc = coords.get("Accuracy")
 
-    return {
-        "ok": True, 
-        "latitude": lat,
-        "longitude": long,
-        "accuracy": accuracy
-    }
+    return Coordinates(latitude=lat, longitude=long, accuracy=acc)
