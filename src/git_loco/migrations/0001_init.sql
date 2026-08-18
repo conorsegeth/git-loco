@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS commits (
+    id               INTEGER PRIMARY KEY AUTOINCREMENT,
+    commit_hash      TEXT    NOT NULL,
+    root_commit_hash TEXT    NOT NULL,
+    repo_name        TEXT    NOT NULL,
+    repo_path        TEXT    NOT NULL,
+    branch           TEXT,
+    author_name      TEXT    NOT NULL,
+    author_email     TEXT    NOT NULL,
+    message          TEXT,
+    insertions       INTEGER,
+    deletions        INTEGER,
+    files_changed    INTEGER NOT NULL,
+    committed_at     TEXT    NOT NULL,
+    location_status  TEXT    NOT NULL,
+    location_source  TEXT,
+    latitude         REAL,
+    longitude        REAL,
+    accuracy         REAL,
+    offline          INTEGER NOT NULL
+);

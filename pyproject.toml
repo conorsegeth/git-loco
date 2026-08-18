@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "platformdirs>=4.11.3",
     "rich>=15.0.0",
 ]
 
