@@ -1,3 +1,4 @@
+from ast import arg
 import sys
 from argparse import ArgumentParser
 from sqlite3 import OperationalError
@@ -109,7 +110,7 @@ def cmd_disable():
 
 def cmd_capture():
     console.print()
-    console.print(r"\n[dim]\[git-loco] Capturing...[/dim]")
+    console.print(r"[dim]\[git-loco] Capturing...[/dim]")
 
     if not (is_windows() or is_wsl()):
         console.print("[red]Platform not supported.[/red]")
@@ -151,6 +152,10 @@ def cmd_capture():
         store.close()
 
 
+# def cmd_test():
+#     offline = is_offline()
+#     console.print("offline", offline)
+
 def main() -> None:
     parser = ArgumentParser(
         prog="git-loco", description="Capture commit location and metadata."
@@ -161,7 +166,7 @@ def main() -> None:
     sub.add_parser("enable", help="install the post-commit hook")
     sub.add_parser("disable", help="remove the post-commit hook")
     sub.add_parser("capture", help="capture current location and commit metadata")
-    sub.add_parser("test", help="test")
+    # sub.add_parser("test", help="test")
 
     args = parser.parse_args()
 
@@ -171,6 +176,8 @@ def main() -> None:
         cmd_disable()
     if args.command == "capture":
         cmd_capture()
+    # if args.command == "test":
+    #     cmd_test()
 
 
 if __name__ == "__main__":

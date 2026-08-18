@@ -1,4 +1,5 @@
 import json
+import stat
 import subprocess
 from enum import StrEnum
 from json import JSONDecodeError
@@ -12,7 +13,7 @@ from git_loco.types import Coordinates
 
 console = Console()
 
-SCRIPTS_DIR = Path(__file__).resolve().parents[3] / "scripts"
+SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
 
 
 class LocationStatus(StrEnum):
@@ -53,6 +54,9 @@ def _get_warning_text(status: LocationStatus) -> str:
 
 def _get_location_status() -> LocationStatus:
     script_path = SCRIPTS_DIR / "location-enabled.ps1"
+    if not script_path.exists():
+        raise LocationUnavailableError("git-loco scripts not found. Try reinstalling.")
+
     try:
         ps = subprocess.run(
             [
@@ -79,6 +83,9 @@ def _get_location_status() -> LocationStatus:
 
 def _get_coordinates() -> dict | None:
     script_path = SCRIPTS_DIR / "get-location.ps1"
+    if not script_path.exists():
+        raise LocationUnavailableError("git-loco scripts not found. Try reinstalling.")
+    
     try:
         ps = subprocess.run(
             [
@@ -115,6 +122,10 @@ def get_location() -> Coordinates:
 
     if "error" in coords:
         raise LocationUnavailableError(coords.get("error"))
+
+    status = coords.get("Status")
+    if status != "Success":
+        raise LocationUnavailableError("Failed to fetch location data.")
 
     lat = coords.get("Latitude")
     long = coords.get("Longitude")

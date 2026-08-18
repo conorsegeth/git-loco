@@ -5,7 +5,7 @@ from pathlib import Path
 from platformdirs import user_data_dir
 
 from git_loco.database.migrate import migrate
-from git_loco.database.store import CommitEntry, Store
+from git_loco.database.store import CommitEntry
 
 APP_NAME = "git-loco"
 
@@ -20,7 +20,7 @@ class LocalStore:
         self.conn = sqlite3.connect(db_path, timeout=5) 
         self.conn.execute("PRAGMA journal_mode=WAL")
 
-        migrations_dir = Path(__file__).parent.parent / "migrations"
+        migrations_dir = Path(__file__).parent / "migrations"
         migrate(self.conn, migrations_dir)
 
     def save_commit(self, entry: CommitEntry) -> None:
