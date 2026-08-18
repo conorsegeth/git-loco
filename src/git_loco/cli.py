@@ -108,6 +108,7 @@ def cmd_disable():
 
 
 def cmd_capture():
+    console.print()
     console.print(r"\n[dim]\[git-loco] Capturing...[/dim]")
 
     if not (is_windows() or is_wsl()):
@@ -141,9 +142,11 @@ def cmd_capture():
     store = get_store()
     try:
         store.save_commit(entry)
-        console.print(r"[dim]\[git-loco] Captured![/dim]\n")
+        console.print(r"[dim]\[git-loco] Captured![/dim]")
+        console.print()
     except OperationalError:
-        console.print(r"[dim]\[git-loco] Capture failed (database error)[/dim]\n")
+        console.print(r"[dim]\[git-loco] Capture failed (database error)[/dim]")
+        console.print()
     finally:
         store.close()
 
