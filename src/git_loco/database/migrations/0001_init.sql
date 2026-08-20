@@ -19,3 +19,5 @@ CREATE TABLE IF NOT EXISTS commits (
     accuracy         REAL,
     offline          INTEGER NOT NULL
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_commits_commit_hash ON commits(commit_hash);

@@ -24,11 +24,18 @@ class CommitEntry:
     offline: bool
 
 
+COMMIT_COLUMNS = tuple(CommitEntry.__dataclass_fields__)
+
+
 class Store(Protocol):
     def save_commit(self, entry: CommitEntry) -> None: ...
+
+    def fetch_commits(self) -> list[CommitEntry]: ...
+
     def close(self) -> None: ...
 
 
 def get_store() -> Store:
     from git_loco.database.local import LocalStore
+
     return LocalStore()

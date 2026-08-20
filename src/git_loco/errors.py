@@ -1,2 +1,6 @@
 class LocationUnavailableError(Exception):
-    """Raised, with a user-facing reason, when location cannot be captured."""
+    """Raised when location cannot be captured."""
+
+
+class ProviderError(Exception):
+    """Raised when a sync provider is unknown or fails."""
