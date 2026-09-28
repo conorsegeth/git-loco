@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "platformdirs>=4.11.3",
-    "rich>=15.0.0",
+    "typer>=0.27.1",
 ]
 
 [build-system]
@@ -18,3 +18,8 @@ git-loco = "git_loco.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/git_loco"]
+
+[dependency-groups]
+dev = [
+    "pyright>=1.1.411",
+]

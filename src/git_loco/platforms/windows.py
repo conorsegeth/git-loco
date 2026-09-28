@@ -6,12 +6,8 @@ from json import JSONDecodeError
 from pathlib import Path
 from subprocess import SubprocessError
 
-from rich.console import Console
-
 from git_loco.errors import LocationUnavailableError
 from git_loco.types import Coordinates
-
-console = Console()
 
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
 

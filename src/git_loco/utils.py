@@ -3,6 +3,8 @@ import socket
 import subprocess
 from pathlib import Path
 
+from git_loco.errors import NotInRepoError
+
 
 def is_windows() -> bool:
     return platform.system() == "Windows"
@@ -48,6 +50,9 @@ def _git(*args: str) -> str:
 
 
 def git_metadata() -> dict:
+    if not is_in_repo():
+        raise NotInRepoError("Not inside a git repository.")
+
     repo_path = _git("rev-parse", "--show-toplevel")
  
     # pull commit hash, author, message, and date in a single call

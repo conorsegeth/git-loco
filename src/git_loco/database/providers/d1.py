@@ -1,7 +1,10 @@
 import json
 import urllib.error
 import urllib.request
+from dataclasses import astuple
 from pathlib import Path
+
+from typing import ClassVar
 
 from git_loco.database.migrations import MIGRATIONS_TABLE_SQL, run_migrations
 from git_loco.database.store import COMMIT_COLUMNS, CommitEntry
@@ -9,12 +12,16 @@ from git_loco.errors import ProviderError
 
 API_URL = "https://api.cloudflare.com/client/v4/accounts/{account_id}/d1/database/{database_id}/query"
 CHUNK_SIZE = 50
-MIGRATIONS_DIR = Path(__file__).parent.parent / "database" / "migrations"
+MIGRATIONS_DIR = Path(__file__).parent.parent / "migrations"
+
+
+def _entry_params(entry: CommitEntry) -> list[object]:
+    return list(astuple(entry))
 
 
 class D1Provider:
-    name = "d1"
-    config_keys = ("token", "account_id", "database_id")
+    name: ClassVar[str] = "d1"
+    config_keys: ClassVar[tuple[str, ...]] = ("token", "account_id", "database_id")
 
     def __init__(self, config: dict[str, str]) -> None:
         self._token = config["token"]
