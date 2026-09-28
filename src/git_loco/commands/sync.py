@@ -59,10 +59,13 @@ def sync(
             remote_hashes = provider_instance.get_commit_hashes()
 
             pending = [entry for entry in local if entry.commit_hash not in remote_hashes]
-            if pending:
-                provider_instance.insert_commits(pending)
+            already_present = len(local) - len(pending)
 
-            typer.echo(f"{name}: synced {len(pending)} commit(s).")
+            synced = 0
+            if pending:
+                synced = provider_instance.insert_commits(pending)
+
+            typer.echo(f"{name}: synced {synced} commit(s), {already_present} already present.")
         except ProviderError as e:
             typer.echo(f"{name}: {e}", err=True)
             failed = True

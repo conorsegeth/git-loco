@@ -50,18 +50,24 @@ class D1Provider:
         result = self._query("SELECT commit_hash FROM commits")
         return {row["commit_hash"] for row in result[0]["results"]}
 
-    def insert_commits(self, entries: list[CommitEntry]) -> None:
+    def insert_commits(self, entries: list[CommitEntry]) -> int:
         cols = ", ".join(COMMIT_COLUMNS)
         placeholders = ", ".join("?" for _ in COMMIT_COLUMNS)
         sql = f"INSERT OR IGNORE INTO commits ({cols}) VALUES ({placeholders})"
 
+        total = 0
         for start in range(0, len(entries), CHUNK_SIZE):
             statements = [
                 {"sql": sql, "params": _entry_params(entry)}
                 for entry in entries[start : start + CHUNK_SIZE]
             ]
 
-            self._post({"statements": statements})
+            result = self._post({"batch": statements})
+            total += sum(
+                item.get("meta", {}).get("changes", 0) for item in result
+            )
+
+        return total
 
     # D1 HTTP API methods
 

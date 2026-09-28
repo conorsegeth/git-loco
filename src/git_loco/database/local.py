@@ -49,7 +49,8 @@ class LocalStore:
             self.conn.execute(query, asdict(entry))
 
     def fetch_commits(self) -> list[CommitEntry]:
-        rows = self.conn.execute("SELECT * FROM commits").fetchall()
+        cols = ", ".join(COMMIT_COLUMNS)
+        rows = self.conn.execute(f"SELECT {cols} FROM commits").fetchall()
         entries = []
 
         for row in rows:
