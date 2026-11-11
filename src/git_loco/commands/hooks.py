@@ -9,17 +9,17 @@ hook_app = typer.Typer(help="Manage the post-commit git hook.")
 
 MARKER = f"Installed by {APP_NAME}"
 CAPTURE_CMD = f"{APP_NAME} capture"
-DISABLE_CMD = f"{APP_NAME} hook disable"
+UNINSTALL_CMD = f"{APP_NAME} hook uninstall"
 
 HOOK_SCRIPT = f"""#!/bin/sh
 # {MARKER}
-# To uninstall, delete this file or run: {DISABLE_CMD}
+# To uninstall, delete this file or run: {UNINSTALL_CMD}
 {CAPTURE_CMD}
 """
 
 
 @hook_app.command()
-def enable():
+def install():
     """Install the post-commit hook."""
     if not is_in_repo():
         typer.echo("Not inside a git repository.", err=True)
@@ -40,17 +40,17 @@ def enable():
             return
 
         typer.echo(f"A post-commit hook already exists at: {hook_path}")
-        typer.echo(f"To enable commit capture, add this line to it: {CAPTURE_CMD}")
+        typer.echo(f"To install commit capture, add this line to it: {CAPTURE_CMD}")
         return
 
     hook_path.write_text(HOOK_SCRIPT)
     hook_path.chmod(hook_path.stat().st_mode | 0o111)  # make the hook file executable
 
-    typer.echo("enabled")
+    typer.echo("installed")
 
 
 @hook_app.command()
-def disable():
+def uninstall():
     """Remove the post-commit hook."""
     if not is_in_repo():
         typer.echo("Not inside a git repository.", err=True)
@@ -60,13 +60,13 @@ def disable():
     hook_path = hooks_dir / "post-commit"
 
     if not hook_path.exists():
-        typer.echo("disabled")
+        typer.echo("uninstalled")
         return
 
     hook_text = hook_path.read_text()
     if MARKER not in hook_text:
-        typer.echo(f"To disable commit capture, remove '{CAPTURE_CMD}' from: {hook_path}")
+        typer.echo(f"To uninstall commit capture, remove '{CAPTURE_CMD}' from: {hook_path}")
         return
 
     hook_path.unlink()
-    typer.echo("disabled")
+    typer.echo("uninstalled")

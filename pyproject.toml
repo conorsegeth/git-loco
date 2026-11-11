@@ -1,8 +1,9 @@
 [project]
 name = "git-loco"
 version = "0.1.0"
-description = "Add your description here"
+description = "Capture Git commit locations and metadata."
 readme = "README.md"
+license = "MIT"
 requires-python = ">=3.11"
 dependencies = [
     "platformdirs>=4.11.3",
@@ -12,6 +13,10 @@ dependencies = [
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[project.urls]
+Repository = "https://github.com/conorsegeth/git-loco"
+Issues = "https://github.com/conorsegeth/git-loco/issues"
 
 [project.scripts]
 git-loco = "git_loco.cli:main"
